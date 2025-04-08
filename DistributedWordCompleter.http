@@ -1,0 +1,6 @@
+@DistributedWordCompleter_HostAddress = http://localhost:5049
+
+GET {{DistributedWordCompleter_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
