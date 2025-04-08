@@ -1,0 +1,6 @@
+services:
+  cosmosprovisioiningservice:
+    image: ${DOCKER_REGISTRY-}cosmosprovisioiningservice
+    build:
+      context: .
+      dockerfile: WordsDBTools/Dockerfile
