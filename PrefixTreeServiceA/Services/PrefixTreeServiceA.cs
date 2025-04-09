@@ -1,6 +1,6 @@
 ﻿using TrieLibrary;
 
-namespace PrefixTreeServiceB.Services
+namespace PrefixTreeServiceA.Services
 {
     public class PrefixTreeServiceA : ConcurrentTrie, IConcurrentTrie
     {

@@ -26,6 +26,12 @@
             _wordsContainer = database.GetContainer(ContainerId);
         }
 
+        public async Task ProvisionDatabaseAsync()
+        {
+            var database = await _cosmosClient.CreateDatabaseIfNotExistsAsync(DatabaseId);
+            await database.Database.CreateContainerIfNotExistsAsync(ContainerId, "/word[0]");
+        }
+
         /// <summary>
         /// Wipes the WordsDB and recreates the container.
         /// </summary>

@@ -16,6 +16,13 @@
             _wordIngestorService = wordIngestorService;
         }
 
+        [HttpPost("provision")]
+        public async Task<IActionResult> ProvisionDatabase()
+        {
+            await _wordIngestorService.ProvisionDatabaseAsync();
+            return Ok("Database and container provisioned successfully.");
+        }
+
         /// <summary>
         /// Initializes the WordsDB by wiping it and repopulating from words.txt
         /// </summary>

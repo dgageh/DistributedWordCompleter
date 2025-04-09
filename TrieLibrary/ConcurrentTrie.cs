@@ -16,16 +16,16 @@
         // Insert a word into the trie
         public bool Insert(string word)
         {
+            if (string.IsNullOrEmpty(word))
+            {
+                throw new ArgumentException("Word cannot be null or empty.", nameof(word));
+            }
+
             var currentNode = _root;
-            bool isNewWord = false;
 
             foreach (var ch in word)
             {
-                currentNode = currentNode.Children.GetOrAdd(ch, _ =>
-                {
-                    isNewWord = true; // A new node was created, meaning it's a new word insertion
-                    return new TrieNode();
-                });
+                currentNode = currentNode.Children.GetOrAdd(ch, _ => new TrieNode());
             }
 
             if (currentNode.IsWordEnd)

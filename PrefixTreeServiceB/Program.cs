@@ -1,4 +1,6 @@
 
+using TrieLibrary;
+
 namespace PrefixTreeServiceB
 {
     public class Program
@@ -13,6 +15,7 @@ namespace PrefixTreeServiceB
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddSingleton<IConcurrentTrie, ConcurrentTrie>();
 
             var app = builder.Build();
 

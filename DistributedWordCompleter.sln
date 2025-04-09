@@ -3,15 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrefixTreeServiceA", "Services\WebApplication1\PrefixTreeServiceA.csproj", "{5C6F2889-71FF-4169-A565-29C35085A7AF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrieLibrary", "TrieLibrary\TrieLibrary.csproj", "{9AF3E63D-4BF2-FBFA-FAC3-CBA39D94ACB3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrefixTreeServiceB", "PrefixTreeServiceB\PrefixTreeServiceB.csproj", "{48206E09-6D61-414D-9450-C4FA9AC787C2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestorService", "IngestorService\IngestorService.csproj", "{7BA456CA-4D51-49A8-B3F9-DAEBC3D40B43}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosProvisioningService", "WordsDBTools\CosmosProvisioningService.csproj", "{9BDEF3E0-47FB-4513-AC54-9FBB9F6B2595}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordIngestorServiceTests", "WordIngestorServiceTests\WordIngestorServiceTests.csproj", "{33C8F847-151F-4F95-82E4-EAD7E8BA7838}"
 EndProject
@@ -19,16 +15,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcurrentTrieTestProject",
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{81DDED9D-158B-E303-5F62-77A2896D2A5A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrefixTreeServiceA", "PrefixTreeServiceA\PrefixTreeServiceA.csproj", "{3C501EAF-74CC-B8E4-C35B-265D0E9DD1A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5C6F2889-71FF-4169-A565-29C35085A7AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5C6F2889-71FF-4169-A565-29C35085A7AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5C6F2889-71FF-4169-A565-29C35085A7AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5C6F2889-71FF-4169-A565-29C35085A7AF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9AF3E63D-4BF2-FBFA-FAC3-CBA39D94ACB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9AF3E63D-4BF2-FBFA-FAC3-CBA39D94ACB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AF3E63D-4BF2-FBFA-FAC3-CBA39D94ACB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -41,10 +35,6 @@ Global
 		{7BA456CA-4D51-49A8-B3F9-DAEBC3D40B43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BA456CA-4D51-49A8-B3F9-DAEBC3D40B43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BA456CA-4D51-49A8-B3F9-DAEBC3D40B43}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9BDEF3E0-47FB-4513-AC54-9FBB9F6B2595}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9BDEF3E0-47FB-4513-AC54-9FBB9F6B2595}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9BDEF3E0-47FB-4513-AC54-9FBB9F6B2595}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9BDEF3E0-47FB-4513-AC54-9FBB9F6B2595}.Release|Any CPU.Build.0 = Release|Any CPU
 		{33C8F847-151F-4F95-82E4-EAD7E8BA7838}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{33C8F847-151F-4F95-82E4-EAD7E8BA7838}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33C8F847-151F-4F95-82E4-EAD7E8BA7838}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,6 +47,10 @@ Global
 		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C501EAF-74CC-B8E4-C35B-265D0E9DD1A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C501EAF-74CC-B8E4-C35B-265D0E9DD1A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C501EAF-74CC-B8E4-C35B-265D0E9DD1A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C501EAF-74CC-B8E4-C35B-265D0E9DD1A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

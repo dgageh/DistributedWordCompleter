@@ -1,6 +1,55 @@
 services:
-  cosmosprovisioiningservice:
-    image: ${DOCKER_REGISTRY-}cosmosprovisioiningservice
+  prefixtree-service-a:
     build:
-      context: .
-      dockerfile: WordsDBTools/Dockerfile
+      context: ./PrefixTreeServiceA
+      dockerfile: Dockerfile
+    container_name: prefixtree-service-a
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  prefixtree-service-b:
+    build:
+      context: ./PrefixTreeServiceB
+      dockerfile: Dockerfile
+    container_name: prefixtree-service-b
+    depends_on:
+      - prefixtree-service-a
+    ports:
+      - "8082:8080"
+    networks:
+      - app-network
+
+  cosmosdb-emulator:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator
+    container_name: cosmosdb-emulator
+    ports:
+      - "8081:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/_explorer/emulator.pem"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app-network
+
+  word-ingestor:
+    build:
+      context: ./IngestorService
+      dockerfile: Dockerfile
+    container_name: word-ingestor
+    depends_on:
+      - cosmosdb-emulator
+    environment:
+      COSMOS_ENDPOINT: ${COSMOS_ENDPOINT}
+      COSMOS_KEY: ${COSMOS_KEY}
+      PREFIXTREE_SERVICE_URL: ${PREFIXTREE_SERVICE_URL}
+    ports:
+      - "8083:8080"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

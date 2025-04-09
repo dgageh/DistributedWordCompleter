@@ -1,4 +1,6 @@
-﻿namespace IngestorService.Services
+﻿using Microsoft.Azure.Cosmos;
+
+namespace IngestorService.Services
 {
     public class WordIngestorService
     {
@@ -9,6 +11,11 @@
         {
             _prefixTreeClient = prefixTreeClient ?? throw new ArgumentNullException(nameof(prefixTreeClient));
             _wordsDbService = wordsDbService ?? throw new ArgumentNullException(nameof(wordsDbService));
+        }
+
+        public async Task ProvisionDatabaseAsync()
+        {
+            await _wordsDbService.ProvisionDatabaseAsync();
         }
 
         public async Task InitializeAsync(IEnumerable<string>? words = null)
