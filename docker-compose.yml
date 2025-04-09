@@ -1,9 +1,19 @@
 services:
+  trie-library:
+    build:
+      context: ./TrieLibrary
+      dockerfile: Dockerfile
+    container_name: trie-library
+    networks:
+      - app-network
+ 
   prefixtree-service-a:
     build:
       context: ./PrefixTreeServiceA
       dockerfile: Dockerfile
     container_name: prefixtree-service-a
+    depends_on:
+      - trie-library
     ports:
       - "8080:8080"
     networks:
@@ -11,7 +21,7 @@ services:
 
   prefixtree-service-b:
     build:
-      context: ./PrefixTreeServiceB
+      context: ./PrefixTreeServiceB/
       dockerfile: Dockerfile
     container_name: prefixtree-service-b
     depends_on:

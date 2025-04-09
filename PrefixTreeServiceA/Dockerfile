@@ -11,7 +11,7 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["./PrefixTreeServiceA.csproj", "PrefixTreeServiceA/"]
+COPY ["./", "PrefixTreeServiceA/"]
 RUN dotnet restore "./PrefixTreeServiceA/PrefixTreeServiceA.csproj"
 COPY . .
 WORKDIR "/src/PrefixTreeServiceA"
