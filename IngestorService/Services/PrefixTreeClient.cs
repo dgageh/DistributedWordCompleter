@@ -5,15 +5,14 @@
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl;
 
-        public PrefixTreeClient(HttpClient httpClient, string baseUrl)
+        public PrefixTreeClient(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _baseUrl = baseUrl ?? throw new ArgumentNullException(nameof(baseUrl));
         }
 
         public async Task<bool> InsertWordAsync(string word)
         {
-            var response = await _httpClient.PostAsync($"{_baseUrl}/api/words/insert?word={word}", null);
+            var response = await _httpClient.PostAsync($"{_httpClient.BaseAddress}/api/words/insert?word={word}", null);
             return response.IsSuccessStatusCode;
         }
 

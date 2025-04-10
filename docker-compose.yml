@@ -1,19 +1,9 @@
 services:
-  trie-library:
-    build:
-      context: ./TrieLibrary
-      dockerfile: Dockerfile
-    container_name: trie-library
-    networks:
-      - app-network
- 
   prefixtree-service-a:
     build:
-      context: ./PrefixTreeServiceA
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: PrefixTreeServiceA/Dockerfile
     container_name: prefixtree-service-a
-    depends_on:
-      - trie-library
     ports:
       - "8080:8080"
     networks:
@@ -21,28 +11,29 @@ services:
 
   prefixtree-service-b:
     build:
-      context: ./PrefixTreeServiceB/
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: PrefixTreeServiceB/Dockerfile
     container_name: prefixtree-service-b
-    depends_on:
-      - prefixtree-service-a
     ports:
       - "8082:8080"
     networks:
       - app-network
 
   cosmosdb-emulator:
-    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator
-    container_name: cosmosdb-emulator
-    ports:
-      - "8081:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/_explorer/emulator.pem"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    networks:
-      - app-network
+      image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+      container_name: cosmosdb-emulator
+      tty: true
+      stdin_open: true
+      ports:
+        - "8081:8081"             # Maps container's 8081 (emulator endpoint) to host's 8081
+        - "10250-10255:10250-10255"  # Maps additional ports if required by the emulator
+      healthcheck:
+        test: ["CMD", "curl", "-fk", "https://localhost:8081/_explorer/emulator.pem"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+      networks:
+        - app-network
 
   word-ingestor:
     build:

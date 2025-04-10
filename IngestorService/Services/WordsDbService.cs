@@ -21,7 +21,18 @@
 
         public WordsDbService(string endpoint, string key)
         {
-            _cosmosClient = new CosmosClient(endpoint, key);
+            var options = new CosmosClientOptions
+            {
+                HttpClientFactory = () =>
+                {
+                    return new HttpClient(new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    });
+                }
+            };
+
+            _cosmosClient = new CosmosClient(endpoint, key, options);
             var database = _cosmosClient.GetDatabase(DatabaseId);
             _wordsContainer = database.GetContainer(ContainerId);
         }
@@ -67,9 +78,12 @@
         /// </summary>
         public async Task WriteWordAsync(string word)
         {
-            var wordDoc = new WordDocument { Id = word };
-            await _wordsContainer.UpsertItemAsync(wordDoc);
-            OnWordAdded?.Invoke(this, word);
+            if (word.Length > 0)
+            {
+                var wordDoc = new WordDocument { Id = word, FirstLetter = word.Substring(0, 1) };
+                await _wordsContainer.UpsertItemAsync(wordDoc);
+                OnWordAdded?.Invoke(this, word);
+            }
         }
 
         /// <summary>
@@ -85,5 +99,6 @@
     public class WordDocument
     {
         public string Id { get; set; } = default!;
+        public string FirstLetter { get; set; } = default!;
     }
 }

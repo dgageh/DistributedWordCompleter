@@ -1,4 +1,3 @@
-
 using TrieLibrary;
 
 namespace PrefixTreeServiceB
@@ -10,29 +9,34 @@ namespace PrefixTreeServiceB
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+            // Configure Swagger/OpenAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            // Add custom services like TrieLibrary dependency
             builder.Services.AddSingleton<IConcurrentTrie, ConcurrentTrie>();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            app.UseSwagger(); // Enable the Swagger middleware
+            app.UseSwaggerUI(c =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "PrefixTreeServiceB API V1");
+                c.RoutePrefix = string.Empty; // Set the Swagger UI to be the default page
+            });
 
+
+            // If you are not using HTTPS, you can comment out or remove the UseHttpsRedirection
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseAuthorization(); // Add authorization middleware if needed
 
-
+            // Map controllers
             app.MapControllers();
 
+            // Run the application
             app.Run();
         }
     }

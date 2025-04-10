@@ -23,7 +23,7 @@ namespace IngestorService.Services
             // If words are not provided, read from file
             if (words == null)
             {
-                string filePath = Path.Combine(AppContext.BaseDirectory, "Data", "words.txt");
+                string filePath = Path.Combine("Data", "words.txt");
 
                 if (!File.Exists(filePath))
                     throw new FileNotFoundException($"File {filePath} not found in container.");

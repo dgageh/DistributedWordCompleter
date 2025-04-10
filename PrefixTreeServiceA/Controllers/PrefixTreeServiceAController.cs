@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TrieLibrary;
 
-namespace PrefixTreeServiceB.Controllers
+namespace PrefixTreeServiceA.Controllers
 {
     [ApiController]
     [Route("api/words")]

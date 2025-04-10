@@ -7,7 +7,7 @@
 
     [ApiController]
     [Route("api/words-ingestor")]
-    public class WordIngestorController : ControllerBase
+    public class WordIngestorController : Controller
     {
         private readonly WordIngestorService _wordIngestorService;
 
