@@ -40,7 +40,7 @@
         public async Task ProvisionDatabaseAsync()
         {
             var database = await _cosmosClient.CreateDatabaseIfNotExistsAsync(DatabaseId);
-            await database.Database.CreateContainerIfNotExistsAsync(ContainerId, "/word[0]");
+            await database.Database.CreateContainerIfNotExistsAsync(ContainerId, "/firstLetter");
         }
 
         /// <summary>
@@ -52,7 +52,7 @@
             var database = _cosmosClient.GetDatabase(DatabaseId);
             var container = database.GetContainer(ContainerId);
             await container.DeleteContainerAsync();
-            await database.CreateContainerIfNotExistsAsync(ContainerId, "/id");
+            await database.CreateContainerIfNotExistsAsync(ContainerId, "/firstLetter");
         }
 
         /// <summary>
@@ -67,7 +67,7 @@
             while (iterator.HasMoreResults)
             {
                 var response = await iterator.ReadNextAsync();
-                words.AddRange(response.Select(doc => doc.Id));
+                words.AddRange(response.Select(doc => doc.id));
             }
 
             return words;
@@ -80,7 +80,7 @@
         {
             if (word.Length > 0)
             {
-                var wordDoc = new WordDocument { Id = word, FirstLetter = word.Substring(0, 1) };
+                var wordDoc = new WordDocument { id = word, firstLetter = word.Substring(0, 1) };
                 await _wordsContainer.UpsertItemAsync(wordDoc);
                 OnWordAdded?.Invoke(this, word);
             }
@@ -98,7 +98,7 @@
 
     public class WordDocument
     {
-        public string Id { get; set; } = default!;
-        public string FirstLetter { get; set; } = default!;
+        public string id { get; set; } = default!;
+        public string firstLetter { get; set; } = default!;
     }
 }

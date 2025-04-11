@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>8197027a-7e0d-4da0-91b7-61dfd7e61407</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,5 +17,4 @@
   <ItemGroup>
     <ProjectReference Include="..\TrieLibrary\TrieLibrary.csproj" />
   </ItemGroup>
-
 </Project>

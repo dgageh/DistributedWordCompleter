@@ -17,10 +17,17 @@ namespace PrefixTreeServiceB
 
             // Add custom services like TrieLibrary dependency
             builder.Services.AddSingleton<IConcurrentTrie, ConcurrentTrie>();
-
+            builder.Services.AddSwaggerGen(options =>
+            {
+                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(xmlPath);
+            });
             var app = builder.Build();
 
             app.UseSwagger(); // Enable the Swagger middleware
+
+
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "PrefixTreeServiceB API V1");

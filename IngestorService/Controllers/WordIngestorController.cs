@@ -5,9 +5,12 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// Handles operations related to the WordsDB and makes corresponding changes to the local PrefixTree service.
+    /// </summary>
     [ApiController]
     [Route("api/words-ingestor")]
-    public class WordIngestorController : Controller
+    public class WordIngestorController : ControllerBase
     {
         private readonly WordIngestorService _wordIngestorService;
 
@@ -16,6 +19,9 @@
             _wordIngestorService = wordIngestorService;
         }
 
+        /// <summary>
+        /// Creates the database and container in CosmosDB if they don't exist
+        /// </summary>
         [HttpPost("provision")]
         public async Task<IActionResult> ProvisionDatabase()
         {

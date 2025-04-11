@@ -59,6 +59,18 @@ namespace IngestorService.Services
                     Console.WriteLine($"Error adding word '{word}': {ex.Message}");
                 }
             });
+            //foreach (var word in uniqueWords)
+            //{
+            //    try
+            //    {
+            //        //await _prefixTreeClient.InsertWordAsync(word);
+            //        await _wordsDbService.WriteWordAsync(word);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine($"Error adding word '{word}': {ex.Message}");
+            //    }
+            //}
         }
 
         public async Task BatchDeleteWordsAsync(IEnumerable<string> words)
