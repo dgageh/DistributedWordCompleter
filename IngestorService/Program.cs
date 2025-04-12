@@ -1,7 +1,6 @@
 using Azure.Identity;
 using IngestorService.Services;
 using Microsoft.Extensions.DependencyInjection;
-using PrefixTreeServiceA.Services;
 using TrieLibrary;
 
 namespace IngestorService

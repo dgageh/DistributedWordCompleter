@@ -1,6 +1,28 @@
-@PrefixTreeServiceB_HostAddress = http://localhost:5110
+#local 
+#@WordIngestorService_HostAddress = http://localhost:5110
+#Azure direct
+@WordIngestorService_HostAddress = https://prefixtree-service-b.whiteplant-b3b10a51.westus.azurecontainerapps.io
+#Azure via APIM
+#@WordIngestorService_HostAddress = http://localhost:5110
 
-GET {{PrefixTreeServiceB_HostAddress}}/weatherforecast/
+### Insert a word into the Prefix Tree
+POST {{PrefixTreeServiceA_HostAddress}}/api/words/insert?word=example
 Accept: application/json
 
 ###
+
+### Remove a word from the Prefix Tree
+DELETE {{PrefixTreeServiceA_HostAddress}}/api/words/remove?word=example
+Accept: application/json
+
+###
+
+### Search for a word in the Prefix Tree
+GET {{PrefixTreeServiceA_HostAddress}}/api/words/search?word=example
+Accept: application/json
+
+###
+
+### Get words with a specific prefix
+GET {{PrefixTreeServiceA_HostAddress}}/api/words/autocomplete?prefix=ex
+Accept: application/json

@@ -23,8 +23,8 @@ services:
 
   word-ingestor:
     build:
-      context: ./IngestorService
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: IngestorService/Dockerfile
     container_name: word-ingestor
     depends_on:
       - prefixtree-service-b

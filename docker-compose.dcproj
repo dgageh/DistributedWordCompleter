@@ -8,10 +8,15 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include=".env" />
+    <None Include="DeployInitial.ps1" />
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
+    <None Include="RedeployAll.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DeployScripts\" />
   </ItemGroup>
 </Project>

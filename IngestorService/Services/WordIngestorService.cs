@@ -37,7 +37,7 @@ namespace IngestorService.Services
 
         public async Task StartupAsync()
         {
-            var words = await _wordsDbService.GetAllWordsAsync();
+            var words = await _wordsDbService.GetAllWordsAsync(); 
             Console.WriteLine($"Loading {words.Count()} words into PrefixTree...");
             await BatchAddWordsAsync(words);
         }

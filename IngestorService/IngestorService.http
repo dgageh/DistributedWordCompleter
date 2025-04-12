@@ -1,6 +1,55 @@
-@IngestorService_HostAddress = http://localhost:5157
+#local 
+#@WordIngestorService_HostAddress = http://localhost:5110
+#Azure direct
+@WordIngestorService_HostAddress = https://word-ingestor.whiteplant-b3b10a51.westus.azurecontainerapps.io
+#Azure via APIM
+#@WordIngestorService_HostAddress = http://localhost:5110
 
-GET {{IngestorService_HostAddress}}/weatherforecast/
+
+### Provision the database and container in CosmosDB
+POST {{WordIngestorService_HostAddress}}/api/words-ingestor/provision
 Accept: application/json
 
 ###
+
+### Initialize the WordsDB by wiping it and repopulating from words.txt
+POST {{WordIngestorService_HostAddress}}/api/words-ingestor/initialize
+Accept: application/json
+
+###
+
+### Load all words into the PrefixTree
+POST {{WordIngestorService_HostAddress}}/api/words-ingestor/startup
+Accept: application/json
+
+###
+
+### Add a batch of words to WordsDB and PrefixTree
+POST {{WordIngestorService_HostAddress}}/api/words-ingestor/batch-add
+Content-Type: application/json
+Accept: application/json
+
+[
+    "example",
+    "word",
+    "test"
+]
+
+###
+
+### Remove a batch of words from WordsDB and PrefixTree
+DELETE {{WordIngestorService_HostAddress}}/api/words-ingestor/batch-delete
+Content-Type: application/json
+Accept: application/json
+
+[
+    "example",
+    "word",
+    "test"
+]
+
+###
+
+### Start synchronization to listen for changes in WordsDB
+POST {{WordIngestorService_HostAddress}}/api/words-ingestor/sync
+Accept: application/json
