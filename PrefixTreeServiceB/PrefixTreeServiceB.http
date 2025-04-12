@@ -1,12 +1,14 @@
 #local 
-#@WordIngestorService_HostAddress = http://localhost:5110
+#@PrefixTreeServiceA_HostAddress = http://localhost:5110
 #Azure direct
-@WordIngestorService_HostAddress = https://prefixtree-service-b.whiteplant-b3b10a51.westus.azurecontainerapps.io
+#@PrefixTreeServiceA_HostAddress = https://prefixtree-service-b.whitesmoke-63fac5e0.westus.azurecontainerapps.io
 #Azure via APIM
-#@WordIngestorService_HostAddress = http://localhost:5110
+@PrefixTreeServiceA_HostAddress = https://dwc-apim.azure-api.net/prefixtree
+
+# @requestTimeout=60000
 
 ### Insert a word into the Prefix Tree
-POST {{PrefixTreeServiceA_HostAddress}}/api/words/insert?word=example
+POST {{PrefixTreeServiceA_HostAddress}}/api/words/insert?word=elemental
 Accept: application/json
 
 ###
@@ -24,5 +26,5 @@ Accept: application/json
 ###
 
 ### Get words with a specific prefix
-GET {{PrefixTreeServiceA_HostAddress}}/api/words/autocomplete?prefix=ex
+GET {{PrefixTreeServiceA_HostAddress}}/api/words/autocomplete?prefix=el
 Accept: application/json

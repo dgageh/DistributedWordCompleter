@@ -1,0 +1,15 @@
+meta {
+  name: Remove
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{PrefixTreeUrlA}}/api/words/remove?word=example
+  body: none
+  auth: inherit
+}
+
+params:query {
+  word: example
+}

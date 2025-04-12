@@ -1,0 +1,15 @@
+meta {
+  name: Autocomplete
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{PrefixTreeUrlA}}/api/words/autocomplete?prefix=d
+  body: none
+  auth: inherit
+}
+
+params:query {
+  prefix: d
+}

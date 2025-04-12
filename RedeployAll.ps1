@@ -10,6 +10,12 @@ $containerApps = @(
     @{ name = "prefixtree-service-b"; port = 8080; },
     @{ name = "word-ingestor"; port = 8080; }
 )
+az acr repository delete --name distributedwordcompletionacr --image prefixtree-service-a:latest --yes
+az acr repository delete --name distributedwordcompletionacr --image prefixtree-service-b:latest --yes
+az acr repository delete --name distributedwordcompletionacr --image word-ingestor:latest --yes
+
+# Log in to ACR
+az acr login --name $acrName
 
 # 2. Build and Push Docker Images to Azure Container Registry
 # Loop through each container app and build/push its image

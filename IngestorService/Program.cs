@@ -14,8 +14,20 @@ namespace IngestorService
             // Read the designated region from an environment variable (or fallback to a default value)
             var region = Environment.GetEnvironmentVariable("REGION") ?? "local";
 
-            // Optionally, load a region-specific settings file
+            // Load appsettings.json and region-specific settings
             builder.Configuration.AddJsonFile($"appsettings.{region}.json", optional: false, reloadOnChange: true);
+
+            // Optionally load Azure App Configuration
+            var appConfigConnectionString = builder.Configuration["AppConfig:ConnectionString"];
+            if (!string.IsNullOrEmpty(appConfigConnectionString))
+            {
+                builder.Configuration.AddAzureAppConfiguration(options =>
+                {
+                    options.Connect(appConfigConnectionString)
+                           .Select(KeyFilter.Any, LabelFilter.Null)
+                           .Select(KeyFilter.Any, region); // Optionally use region-specific labels
+                });
+            }
 
             // Add Azure Key Vault integration
             var keyVaultName = builder.Configuration["KeyVault:Name"];
@@ -32,10 +44,17 @@ namespace IngestorService
 
             // Configure Swagger/OpenAPI
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.CustomSchemaIds(type => type.FullName); // Ensure unique schema IDs
+                options.DocumentFilter<ExcludePrefixTreeFilter>();
+                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(xmlPath);
+            });
 
             // Add application services
             builder.Services.AddSingleton<IWordsDbService, WordsDbService>();
-
             builder.Services.AddSingleton<IPrefixTreeClient, PrefixTreeClient>();
             builder.Services.AddSingleton<WordIngestorService>();
             builder.Services.AddHttpClient<IPrefixTreeClient, PrefixTreeClient>(httpClient =>
@@ -60,16 +79,6 @@ namespace IngestorService
 
                 return new WordsDbService(cosmosEndpoint, cosmosKey);
             });
-
-            builder.Services.AddSwaggerGen(options =>
-            {
-                options.CustomSchemaIds(type => type.FullName); // Ensure unique schema IDs
-                options.DocumentFilter<ExcludePrefixTreeFilter>();
-                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                options.IncludeXmlComments(xmlPath);
-            });
-
 
             var app = builder.Build();
 

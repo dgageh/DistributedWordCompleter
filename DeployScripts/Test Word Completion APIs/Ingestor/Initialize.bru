@@ -1,0 +1,11 @@
+meta {
+  name: Initialize
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{IngestorUrl}}/api/words-ingestor/provision
+  body: none
+  auth: inherit
+}

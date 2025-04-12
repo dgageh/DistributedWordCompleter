@@ -7,16 +7,30 @@
     <ProjectGuid>81dded9d-158b-e303-5f62-77a2896d2a5a</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="DeployScripts\Test Word Completion APIs\.vs\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include=".env" />
     <None Include="DeployInitial.ps1" />
+    <None Include="DeployScripts\Test Word Completion APIs\bruno.json" />
+    <None Include="DeployScripts\Test Word Completion APIs\environments\Azure APIM.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\environments\Azure Direct.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\Ingestor\Batch Add.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\Ingestor\Batch Delete.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\Ingestor\folder.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\Ingestor\Initialize.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\Ingestor\Provision.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\Ingestor\Startup.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\PrefixTreeService\Autocomplete.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\PrefixTreeService\folder.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\PrefixTreeService\Insert.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\PrefixTreeService\Remove.bru" />
+    <None Include="DeployScripts\Test Word Completion APIs\PrefixTreeService\Search.bru" />
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
     <None Include="RedeployAll.ps1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DeployScripts\" />
   </ItemGroup>
 </Project>

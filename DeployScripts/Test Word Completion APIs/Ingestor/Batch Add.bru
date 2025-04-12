@@ -1,0 +1,17 @@
+meta {
+  name: Batch Add
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{IngestorUrl}}/api/words-ingestor/batch-add
+  body: text
+  auth: inherit
+}
+
+body:text {
+  one
+  two
+  three
+}

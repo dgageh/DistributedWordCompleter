@@ -1,10 +1,11 @@
 #local 
 #@WordIngestorService_HostAddress = http://localhost:5110
 #Azure direct
-@WordIngestorService_HostAddress = https://word-ingestor.whiteplant-b3b10a51.westus.azurecontainerapps.io
+@WordIngestorService_HostAddress = https://word-ingestor.whitesmoke-63fac5e0.westus.azurecontainerapps.io
 #Azure via APIM
 #@WordIngestorService_HostAddress = http://localhost:5110
 
+@requestTimeout=60000
 
 ### Provision the database and container in CosmosDB
 POST {{WordIngestorService_HostAddress}}/api/words-ingestor/provision

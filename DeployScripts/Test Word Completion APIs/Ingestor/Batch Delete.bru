@@ -1,0 +1,17 @@
+meta {
+  name: Batch Delete
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{IngestorUrl}}/api/words-ingestor/batch-delete
+  body: text
+  auth: inherit
+}
+
+body:text {
+  one
+  two
+  three
+}
