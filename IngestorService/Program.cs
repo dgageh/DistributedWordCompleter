@@ -1,5 +1,6 @@
 using Azure.Identity;
 using IngestorService.Services;
+using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using TrieLibrary;
 
@@ -14,23 +15,34 @@ namespace IngestorService
             // Read the designated region from an environment variable (or fallback to a default value)
             var region = Environment.GetEnvironmentVariable("REGION") ?? "local";
 
+            Console.WriteLine($"Region: {region}");
+
             // Load appsettings.json and region-specific settings
             builder.Configuration.AddJsonFile($"appsettings.{region}.json", optional: false, reloadOnChange: true);
 
+
             // Optionally load Azure App Configuration
-            var appConfigConnectionString = builder.Configuration["AppConfig:ConnectionString"];
-            if (!string.IsNullOrEmpty(appConfigConnectionString))
-            {
-                builder.Configuration.AddAzureAppConfiguration(options =>
-                {
-                    options.Connect(appConfigConnectionString)
-                           .Select(KeyFilter.Any, LabelFilter.Null)
-                           .Select(KeyFilter.Any, region); // Optionally use region-specific labels
-                });
-            }
+            ////            var appConfigConnectionString = builder.Configuration["AppConfig:ConnectionString"];
+            //var appConfigConnectionString = Environment.GetEnvironmentVariable("AZURE_APP_CONFIG_CONNECTION_STRING");
+
+            //if (!string.IsNullOrEmpty(appConfigConnectionString))
+            //{
+            //    Console.WriteLine(appConfigConnectionString);
+            //    builder.Configuration.AddAzureAppConfiguration(options =>
+            //    {
+            //        options.Connect(appConfigConnectionString)
+            //               .Select(KeyFilter.Any, LabelFilter.Null)
+            //               .Select(KeyFilter.Any, region); // Optionally use region-specific labels
+            //    });
+            //}
+            //else
+            //{
+            //    Console.WriteLine("No Azure App Configuration connection string provided.");
+            //}
 
             // Add Azure Key Vault integration
-            var keyVaultName = builder.Configuration["KeyVault:Name"];
+            //            var keyVaultName = builder.Configuration["KeyVault:Name"];
+            var keyVaultName = Environment.GetEnvironmentVariable("KEY_VAULT_NAME");
             if (string.IsNullOrEmpty(keyVaultName))
             {
                 throw new InvalidOperationException("KeyVault:Name is not configured in appsettings.json or environment variables.");
@@ -60,10 +72,14 @@ namespace IngestorService
             builder.Services.AddHttpClient<IPrefixTreeClient, PrefixTreeClient>(httpClient =>
             {
                 var baseUrl = builder.Configuration["PrefixTreeService:BaseUrl"];
+//                var baseUrl = Environment.GetEnvironmentVariable("PREFIX_TREE_SERVICE_BASE_URL");
                 if (string.IsNullOrEmpty(baseUrl))
                 {
+                    Console.WriteLine("The configuration value for 'PrefixTreeService:BaseUrl' is missing.");
                     throw new InvalidOperationException("The configuration value for 'PrefixTreeService:BaseUrl' is missing.");
                 }
+                else
+                    Console.WriteLine($"The configuration value for 'PrefixTreeService:BaseUrl' is {baseUrl}");
                 httpClient.BaseAddress = new Uri(baseUrl);
             });
 

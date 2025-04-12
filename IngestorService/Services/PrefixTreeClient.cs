@@ -12,13 +12,13 @@
 
         public async Task<bool> InsertWordAsync(string word)
         {
-            var response = await _httpClient.PostAsync($"{_httpClient.BaseAddress}api/words/insert?word={word}", null);
+            var response = await _httpClient.PostAsync($"{_httpClient.BaseAddress}/api/words/insert?word={word}", null);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> RemoveWordAsync(string word)
         {
-            var response = await _httpClient.DeleteAsync($"{_baseUrl}api/words/remove?word={word}");
+            var response = await _httpClient.DeleteAsync($"{_httpClient.BaseAddress}/api/words/remove?word={word}");
             return response.IsSuccessStatusCode;
         }
 

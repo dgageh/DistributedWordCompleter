@@ -5,8 +5,8 @@ $acrName = "distributedwordcompletionacr"
 $containerAppEnv = "distributedwordcompletion-acr-env-wus"
 $workspaceName = "workspace-istributedordompletionwusrgXtQ"
 $containerApps = @(
-    @{ name = "prefixtree-service-a"; dockerfile = "./PrefixTreeServiceA/Dockerfile"; port = 8080 },
-    @{ name = "prefixtree-service-b"; dockerfile = "./PrefixTreeServiceB/Dockerfile"; port = 8080 },
+#    @{ name = "prefixtree-service-a"; dockerfile = "./PrefixTreeServiceA/Dockerfile"; port = 8080 },
+#    @{ name = "prefixtree-service-b"; dockerfile = "./PrefixTreeServiceB/Dockerfile"; port = 8080 },
     @{ name = "word-ingestor"; dockerfile = "./IngestorService/Dockerfile"; port = 8080 }
 )
 

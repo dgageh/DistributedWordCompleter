@@ -12,6 +12,7 @@
   <ItemGroup>
     <None Include=".env" />
     <None Include="DeployInitial.ps1" />
+    <None Include="DeployScripts\Design Document.excalidraw" />
     <None Include="DeployScripts\Test Word Completion APIs\bruno.json" />
     <None Include="DeployScripts\Test Word Completion APIs\environments\Azure APIM.bru" />
     <None Include="DeployScripts\Test Word Completion APIs\environments\Azure Direct.bru" />
