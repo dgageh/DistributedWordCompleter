@@ -79,9 +79,6 @@ stages:
     pool:
       name: 'Default'
     steps:
-      # Log in to ACR using Azure CLI
-      - script: wsl -d Ubuntu
-        displayName: "Run script with Ubuntu Bash"
       - task: AzureCLI@2
         displayName: "ACR Login"
         inputs:
