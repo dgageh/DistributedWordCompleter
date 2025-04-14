@@ -45,6 +45,8 @@ stages:
           buildContext: '.'
           tags: '$(acrName).azurecr.io/prefixtree-service-b:$(imageTagSuffix)'
 
+
+
 # Stage 2: Run Unit Tests
 - stage: Test
   displayName: "Run Unit Tests"
@@ -55,12 +57,15 @@ stages:
     pool:
       name: 'Default'
     steps:
-      - script: |
-          dotnet test ConcurrentTrieTestProject/ConcurrentTrieTestProject.csproj --configuration $(buildConfiguration)
-        displayName: "Run ConcurrentTrieTestProject Tests"
-      - script: |
-          dotnet test WordIngestorServiceTests/WordIngestorServiceTests.csproj --configuration $(buildConfiguration)
-        displayName: "Run WordIngestorServiceTests Tests"
+    - powershell: |
+        Import-Module Microsoft.PowerShell.Security -ErrorAction Stop
+        Write-Output "Module imported successfully." 
+        displayName: "Import Security Module"    - script: |
+            dotnet test ConcurrentTrieTestProject/ConcurrentTrieTestProject.csproj --configuration $(buildConfiguration)
+              displayName: "Run ConcurrentTrieTestProject Tests"
+        - script: |
+              dotnet test WordIngestorServiceTests/WordIngestorServiceTests.csproj --configuration $(buildConfiguration)
+          displayName: "Run WordIngestorServiceTests Tests"
 
 # Stage 3: Push Docker Images to ACR
 - stage: Push
