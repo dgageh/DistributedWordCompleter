@@ -19,7 +19,7 @@ stages:
   - job: BuildImages
     displayName: "Build Images for All Services"
     pool:
-      vmImage: 'Hosted Agent'
+      vmImage: 'Default'
     steps:
       - task: Docker@2
         displayName: "Build IngestorService image"
@@ -53,7 +53,7 @@ stages:
   - job: RunTests
     displayName: "Run Dotnet Tests"
     pool:
-      vmImage: 'Hosted Agent'
+      vmImage: 'Default'
     steps:
       - script: |
           dotnet test ConcurrentTrieTestProject/ConcurrentTrieTestProject.csproj --configuration $(buildConfiguration)
@@ -70,7 +70,7 @@ stages:
   - job: PushImages
     displayName: "Push Images"
     pool:
-      vmImage: 'Hosted Agent'
+      vmImage: 'Default'
     steps:
       # Log in to ACR using Azure CLI
       - task: AzureCLI@2
@@ -109,7 +109,7 @@ stages:
   - job: DeployApps
     displayName: "Deploy Container Apps"
     pool:
-      vmImage: 'Hosted Agent'
+      vmImage: 'Default'
     steps:
       - task: AzureCLI@2
         displayName: "Deploy Container Apps"
@@ -162,7 +162,7 @@ stages:
   - job: MirrorRepo
     displayName: "Mirror Code to GitHub"
     pool:
-      vmImage: 'Hosted Agent'
+      vmImage: 'Default'
     steps:
       # Check out the entire repository with credentials persisted so that git commands work
       - checkout: self
