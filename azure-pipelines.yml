@@ -19,7 +19,7 @@ stages:
   - job: BuildImages
     displayName: "Build Images for All Services"
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: 'DAVE-HOME'
     steps:
       - task: Docker@2
         displayName: "Build IngestorService image"
