@@ -13,10 +13,10 @@ namespace IngestorService
             var builder = WebApplication.CreateBuilder(args);
 
             // Read the designated region from an environment variable (or fallback to a default value)
-            var region = Environment.GetEnvironmentVariable("region") ?? "local";
-            var prefixTreeServiceUrl = Environment.GetEnvironmentVariable("prefix-tree-service-url") ?? "http://localhost:8000";
-            var cosmosEndpoint = Environment.GetEnvironmentVariable("cosmos-endpoint");
-            var cosmosKey = Environment.GetEnvironmentVariable("cosmos-key");
+            var region = Environment.GetEnvironmentVariable("REGION") ?? "local";
+            var prefixTreeServiceUrl = Environment.GetEnvironmentVariable("PREFIX-TREE-SERVICE") ?? "http://localhost:8000";
+            var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS-ENDPOINT");
+            var cosmosKey = Environment.GetEnvironmentVariable("COSMOS-KEY");
 
 
             // Add services to the container

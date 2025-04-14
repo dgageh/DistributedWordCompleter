@@ -37,7 +37,9 @@ foreach ($app in $containerApps) {
 
     # Check if the container app already exists
     $existingJson = az containerapp show --name $($app.name) --resource-group $resourceGroup 2>$null
-    if ($?) {
+    $exists = $LASTEXITCODE -eq 0
+
+    if ($exists) {
         # Convert the JSON output to an object
         $existing = $existingJson | ConvertFrom-Json
         # The deployed image is usually under properties.template.containers[0].image 
