@@ -29,7 +29,7 @@ namespace PrefixTreeServiceA.Controllers
         /// A response indicating whether the word was successfully added or if it already exists.
         /// </returns>
         [HttpPost("insert")]
-        public IActionResult Insert([FromQuery] string word)
+        public IActionResult Insert([FromBody] string word)
         {
             if (string.IsNullOrEmpty(word)) return BadRequest("Word cannot be empty.");
             return _trie.Insert(word) ? Ok("Word added.") : Conflict("Word already exists.");
@@ -43,7 +43,7 @@ namespace PrefixTreeServiceA.Controllers
         /// A response indicating whether the word was successfully removed or if it was not found.
         /// </returns>
         [HttpDelete("remove")]
-        public IActionResult Remove([FromQuery] string word)
+        public IActionResult Remove([FromBody] string word)
         {
             if (string.IsNullOrEmpty(word)) return BadRequest("Word cannot be empty.");
             return _trie.Remove(word) ? Ok("Word removed.") : NotFound("Word not found.");
