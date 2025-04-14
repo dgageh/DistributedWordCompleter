@@ -2,15 +2,13 @@ trigger:
 - main
 
 variables:
-- group: Secrets
-
-variables:
   resourceGroup: "DistributedWordCompletion_wus_rg"
   location: "westus"
   acrName: "distributedwordcompletionacr"
   containerAppEnv: "distributedwordcompletion-acr-env-wus"
   buildConfiguration: "Release"
   imageTagSuffix: "$(Build.BuildId)"  # Will use the build ID as the unique suffix
+  group: Secrets
 
 stages:
 
