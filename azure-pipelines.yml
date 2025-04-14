@@ -57,10 +57,11 @@ stages:
     pool:
       name: 'Default'
     steps:
-    - powershell: |
-        Import-Module Microsoft.PowerShell.Security -ErrorAction Stop
-        Write-Output "Module imported successfully." 
-        displayName: "Import Security Module"    - script: |
+    # - powershell: |
+    #     Import-Module Microsoft.PowerShell.Security -ErrorAction Stop
+    #     Write-Output "Module imported successfully." 
+    #     displayName: "Import Security Module"    
+        - script: |
             dotnet test ConcurrentTrieTestProject/ConcurrentTrieTestProject.csproj --configuration $(buildConfiguration)
               displayName: "Run ConcurrentTrieTestProject Tests"
         - script: |
