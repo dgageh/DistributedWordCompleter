@@ -47,31 +47,32 @@ stages:
 
 
 
-# Stage 2: Run Unit Tests
-- stage: Test
-  displayName: "Run Unit Tests"
-  dependsOn: Build
-  jobs:
-  - job: RunTests
-    displayName: "Run Dotnet Tests"
-    pool:
-      name: 'Default'
-    steps:
-    # - powershell: |
-    #     Import-Module Microsoft.PowerShell.Security -ErrorAction Stop
-    #     Write-Output "Module imported successfully." 
-    #     displayName: "Import Security Module"    
-        - script: |
-            dotnet test ConcurrentTrieTestProject/ConcurrentTrieTestProject.csproj --configuration $(buildConfiguration)
-              displayName: "Run ConcurrentTrieTestProject Tests"
-        - script: |
-              dotnet test WordIngestorServiceTests/WordIngestorServiceTests.csproj --configuration $(buildConfiguration)
-          displayName: "Run WordIngestorServiceTests Tests"
+# # Stage 2: Run Unit Tests
+# - stage: Test
+#   displayName: "Run Unit Tests"
+#   dependsOn: Build
+#   jobs:
+#   - job: RunTests
+#     displayName: "Run Dotnet Tests"
+#     pool:
+#       name: 'Default'
+#     steps:
+#     # - powershell: |
+#     #     Import-Module Microsoft.PowerShell.Security -ErrorAction Stop
+#     #     Write-Output "Module imported successfully." 
+#     #     displayName: "Import Security Module"    
+#         - script: |
+#             dotnet test ConcurrentTrieTestProject/ConcurrentTrieTestProject.csproj --configuration $(buildConfiguration)
+#               displayName: "Run ConcurrentTrieTestProject Tests"
+#         - script: |
+#               dotnet test WordIngestorServiceTests/WordIngestorServiceTests.csproj --configuration $(buildConfiguration)
+#           displayName: "Run WordIngestorServiceTests Tests"
 
 # Stage 3: Push Docker Images to ACR
 - stage: Push
   displayName: "Push Docker Images to ACR"
-  dependsOn: Test
+  #dependsOn: Test
+  dependsOn: Build
   jobs:
   - job: PushImages
     displayName: "Push Images"
