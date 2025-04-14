@@ -11,6 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".env" />
+    <None Include="azure-pipelines.yml" />
     <None Include="DeployInitial.ps1" />
     <None Include="DeployScripts\Design Document.excalidraw" />
     <None Include="DeployScripts\Test Word Completion APIs\bruno.json" />
