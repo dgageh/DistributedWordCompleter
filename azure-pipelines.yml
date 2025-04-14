@@ -1,0 +1,184 @@
+trigger:
+- main
+
+variables:
+- group: Secrets
+
+variables:
+  resourceGroup: "DistributedWordCompletion_wus_rg"
+  location: "westus"
+  acrName: "distributedwordcompletionacr"
+  containerAppEnv: "distributedwordcompletion-acr-env-wus"
+  buildConfiguration: "Release"
+  imageTagSuffix: "$(Build.BuildId)"  # Will use the build ID as the unique suffix
+
+stages:
+
+# Stage 1: Build Docker Images
+- stage: Build
+  displayName: "Build Docker Images"
+  jobs:
+  - job: BuildImages
+    displayName: "Build Images for All Services"
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: Docker@2
+        displayName: "Build IngestorService image"
+        inputs:
+          command: 'build'
+          dockerfile: 'IngestorService/Dockerfile'
+          buildContext: '.'
+          tags: '$(acrName).azurecr.io/word-ingestor:$(imageTagSuffix)'
+
+      - task: Docker@2
+        displayName: "Build PrefixTreeServiceA image"
+        inputs:
+          command: 'build'
+          dockerfile: 'PrefixTreeServiceA/Dockerfile'
+          buildContext: '.'
+          tags: '$(acrName).azurecr.io/prefixtree-service-a:$(imageTagSuffix)'
+
+      - task: Docker@2
+        displayName: "Build PrefixTreeServiceB image"
+        inputs:
+          command: 'build'
+          dockerfile: 'PrefixTreeServiceB/Dockerfile'
+          buildContext: '.'
+          tags: '$(acrName).azurecr.io/prefixtree-service-b:$(imageTagSuffix)'
+
+# Stage 2: Run Unit Tests
+- stage: Test
+  displayName: "Run Unit Tests"
+  dependsOn: Build
+  jobs:
+  - job: RunTests
+    displayName: "Run Dotnet Tests"
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - script: |
+          dotnet test ConcurrentTrieTestProject/ConcurrentTrieTestProject.csproj --configuration $(buildConfiguration)
+        displayName: "Run ConcurrentTrieTestProject Tests"
+      - script: |
+          dotnet test WordIngestorServiceTests/WordIngestorServiceTests.csproj --configuration $(buildConfiguration)
+        displayName: "Run WordIngestorServiceTests Tests"
+
+# Stage 3: Push Docker Images to ACR
+- stage: Push
+  displayName: "Push Docker Images to ACR"
+  dependsOn: Test
+  jobs:
+  - job: PushImages
+    displayName: "Push Images"
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      # Log in to ACR using Azure CLI
+      - task: AzureCLI@2
+        displayName: "ACR Login"
+        inputs:
+          azureSubscription: 'Azure Subscription'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            echo "Logging into ACR $(acrName)..."
+            az acr login --name $(acrName)
+      
+      - task: Docker@2
+        displayName: "Push IngestorService Image"
+        inputs:
+          command: 'push'
+          tags: '$(acrName).azurecr.io/word-ingestor:$(imageTagSuffix)'
+
+      - task: Docker@2
+        displayName: "Push PrefixTreeServiceA Image"
+        inputs:
+          command: 'push'
+          tags: '$(acrName).azurecr.io/prefixtree-service-a:$(imageTagSuffix)'
+
+      - task: Docker@2
+        displayName: "Push PrefixTreeServiceB Image"
+        inputs:
+          command: 'push'
+          tags: '$(acrName).azurecr.io/prefixtree-service-b:$(imageTagSuffix)'
+
+# Stage 4: Deploy/Update Azure Container Apps
+- stage: Deploy
+  displayName: "Deploy to Azure Container Apps"
+  dependsOn: Push
+  jobs:
+  - job: DeployApps
+    displayName: "Deploy Container Apps"
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: AzureCLI@2
+        displayName: "Deploy Container Apps"
+        inputs:
+          azureSubscription: 'Azure Subscription'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            set -e
+
+            # Retrieve variables
+            resourceGroup="$(resourceGroup)"
+            acrName="$(acrName)"
+            containerAppEnv="$(containerAppEnv)"
+            subscriptionId=$(az account show --query id -o tsv)
+            echo "Using subscription: $subscriptionId"
+
+            # Define the apps to deploy with their target port (8080 in this case)
+            declare -a apps=("prefixtree-service-a" "prefixtree-service-b" "word-ingestor")
+            for app in "${apps[@]}"; do
+              imageTag="${acrName}.azurecr.io/${app}:$(Build.BuildId)"
+              echo "Deploying/Updating container app: $app with image: $imageTag"
+              
+              # Check if the container app exists
+              if az containerapp show --name "$app" --resource-group "$resourceGroup" &> /dev/null; then
+                echo "Container app exists. Updating..."
+                az containerapp update --name "$app" --resource-group "$resourceGroup" --image "$imageTag"
+              else
+                echo "Container app does not exist. Creating..."
+                az containerapp create --name "$app" --resource-group "$resourceGroup" \
+                  --environment "$containerAppEnv" --image "$imageTag" --target-port 8080 \
+                  --ingress external --registry-server "${acrName}.azurecr.io" --system-assigned
+              fi
+
+              # Retrieve the container app's managed identity and assign the AcrPull role
+              principalId=$(az containerapp show --name "$app" --resource-group "$resourceGroup" --query "identity.principalId" -o tsv)
+              if [ -n "$principalId" ]; then
+                echo "Assigning AcrPull role to container app $app (PrincipalId: $principalId)..."
+                az role assignment create --assignee "$principalId" --role "AcrPull" --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroup/providers/Microsoft.ContainerRegistry/registries/$acrName"
+              else
+                echo "Warning: No principalId found for container app $app. Skipping role assignment."
+              fi
+            done
+
+# Stage 5: Mirror Repository to GitHub
+- stage: Mirror
+  displayName: "Mirror Repository to GitHub"
+  dependsOn: Deploy
+  jobs:
+  - job: MirrorRepo
+    displayName: "Mirror Code to GitHub"
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      # Check out the entire repository with credentials persisted so that git commands work
+      - checkout: self
+        persistCredentials: true
+      - script: |
+          echo "Setting up Git remotes for mirroring..."
+          # Remove existing remote if present
+          git remote remove github || true
+          # Add GitHub remote with PAT authentication (the PAT is stored as a secure variable)
+          git remote add github https://$(GITHUB_PAT)@github.com/DGageH/DistributedWordCompleter.git
+          
+          echo "Mirroring repository to GitHub..."
+          # Push all refs (branches, tags, etc.) to GitHub
+          git push --mirror github
+        displayName: "Mirror repository to GitHub"
+        env:
+          GITHUB_PAT: $(GITHUB_PAT)
