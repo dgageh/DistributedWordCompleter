@@ -5,11 +5,11 @@ meta {
 }
 
 post {
-  url: {{PrefixTreeUrlA}}/api/words/insert?word=zoo
-  body: none
+  url: {{PrefixTreeUrlA}}/api/words/insert
+  body: json
   auth: inherit
 }
 
-params:query {
-  word: zoo
+body:json {
+  "rhema"
 }

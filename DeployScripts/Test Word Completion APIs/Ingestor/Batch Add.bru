@@ -6,12 +6,20 @@ meta {
 
 post {
   url: {{IngestorUrl}}/api/words-ingestor/batch-add
-  body: text
+  body: json
   auth: inherit
 }
 
+body:json {
+  [
+  "baptizer",
+  "baptismal",
+  "baptism",
+  "quandry"
+  ]
+}
+
 body:text {
-  one
-  two
-  three
+  
+  
 }

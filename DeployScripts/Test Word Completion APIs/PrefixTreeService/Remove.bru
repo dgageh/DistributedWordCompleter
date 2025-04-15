@@ -5,11 +5,11 @@ meta {
 }
 
 delete {
-  url: {{PrefixTreeUrlA}}/api/words/remove?word=example
-  body: none
+  url: {{PrefixTreeUrlA}}/api/words/remove
+  body: json
   auth: inherit
 }
 
-params:query {
-  word: example
+body:json {
+  "example"
 }

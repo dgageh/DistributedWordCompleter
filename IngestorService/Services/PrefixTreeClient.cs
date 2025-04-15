@@ -3,7 +3,6 @@
     public class PrefixTreeClient : IPrefixTreeClient
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl;
 
         public PrefixTreeClient(HttpClient httpClient)
         {
@@ -12,30 +11,26 @@
 
         public async Task<bool> InsertWordAsync(string word)
         {
-            var response = await _httpClient.PostAsync($"{_httpClient.BaseAddress}/api/words/insert?word={word}", null);
+            if (string.IsNullOrEmpty(word))
+            {
+                throw new ArgumentException("Word cannot be null or empty.", nameof(word));
+            }
+
+            var content = new StringContent($"\"{word}\"", System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_httpClient.BaseAddress}/api/words/insert", content);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> RemoveWordAsync(string word)
         {
-            var response = await _httpClient.DeleteAsync($"{_httpClient.BaseAddress}/api/words/remove?word={word}");
+            if (string.IsNullOrEmpty(word))
+            {
+                throw new ArgumentException("Word cannot be null or empty.", nameof(word));
+            }
+
+            var content = new StringContent($"\"{word}\"", System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_httpClient.BaseAddress}/api/words/remove", content);
             return response.IsSuccessStatusCode;
         }
-
-        //public async Task<IEnumerable<string>> SearchWordsAsync(string word)
-        //{
-        //    var response = await _httpClient.GetAsync($"{_baseUrl}/api/words/search?word={word}");
-        //    return response.IsSuccessStatusCode
-        //        ? await response.Content.ReadFromJsonAsync<IEnumerable<string>>()
-        //        : Enumerable.Empty<string>();
-        //}
-
-        //public async Task<IEnumerable<string>> GetWordsWithPrefixAsync(string prefix)
-        //{
-        //    var response = await _httpClient.GetAsync($"{_baseUrl}/api/words/autocomplete?prefix={prefix}");
-        //    return response.IsSuccessStatusCode
-        //        ? await response.Content.ReadFromJsonAsync<IEnumerable<string>>()
-        //        : Enumerable.Empty<string>();
-        //}
     }
 }

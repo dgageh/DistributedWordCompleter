@@ -14,42 +14,10 @@ namespace IngestorService
 
             // Read the designated region from an environment variable (or fallback to a default value)
             var region = Environment.GetEnvironmentVariable("REGION") ?? "local";
+            var prefixTreeServiceUrl = Environment.GetEnvironmentVariable("PREFIX-TREE-SERVICE") ?? "http://localhost:8000";
+            var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS-ENDPOINT");
+            var cosmosKey = Environment.GetEnvironmentVariable("COSMOS-KEY");
 
-            Console.WriteLine($"Region: {region}");
-
-            // Load appsettings.json and region-specific settings
-            builder.Configuration.AddJsonFile($"appsettings.{region}.json", optional: false, reloadOnChange: true);
-
-
-            // Optionally load Azure App Configuration
-            ////            var appConfigConnectionString = builder.Configuration["AppConfig:ConnectionString"];
-            //var appConfigConnectionString = Environment.GetEnvironmentVariable("AZURE_APP_CONFIG_CONNECTION_STRING");
-
-            //if (!string.IsNullOrEmpty(appConfigConnectionString))
-            //{
-            //    Console.WriteLine(appConfigConnectionString);
-            //    builder.Configuration.AddAzureAppConfiguration(options =>
-            //    {
-            //        options.Connect(appConfigConnectionString)
-            //               .Select(KeyFilter.Any, LabelFilter.Null)
-            //               .Select(KeyFilter.Any, region); // Optionally use region-specific labels
-            //    });
-            //}
-            //else
-            //{
-            //    Console.WriteLine("No Azure App Configuration connection string provided.");
-            //}
-
-            // Add Azure Key Vault integration
-            //            var keyVaultName = builder.Configuration["KeyVault:Name"];
-            var keyVaultName = Environment.GetEnvironmentVariable("KEY_VAULT_NAME");
-            if (string.IsNullOrEmpty(keyVaultName))
-            {
-                throw new InvalidOperationException("KeyVault:Name is not configured in appsettings.json or environment variables.");
-            }
-
-            var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
-            builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
 
             // Add services to the container
             builder.Services.AddControllers();
@@ -71,23 +39,16 @@ namespace IngestorService
             builder.Services.AddSingleton<WordIngestorService>();
             builder.Services.AddHttpClient<IPrefixTreeClient, PrefixTreeClient>(httpClient =>
             {
-                var baseUrl = builder.Configuration["PrefixTreeService:BaseUrl"];
-//                var baseUrl = Environment.GetEnvironmentVariable("PREFIX_TREE_SERVICE_BASE_URL");
-                if (string.IsNullOrEmpty(baseUrl))
+                if (string.IsNullOrEmpty(prefixTreeServiceUrl))
                 {
-                    Console.WriteLine("The configuration value for 'PrefixTreeService:BaseUrl' is missing.");
                     throw new InvalidOperationException("The configuration value for 'PrefixTreeService:BaseUrl' is missing.");
                 }
-                else
-                    Console.WriteLine($"The configuration value for 'PrefixTreeService:BaseUrl' is {baseUrl}");
-                httpClient.BaseAddress = new Uri(baseUrl);
+                httpClient.BaseAddress = new Uri(prefixTreeServiceUrl);
             });
 
             // Configure Cosmos DB service with dependency injection
             builder.Services.AddSingleton<IWordsDbService, WordsDbService>(provider =>
             {
-                var cosmosEndpoint = builder.Configuration["CosmosEndpoint"];
-                var cosmosKey = builder.Configuration["CosmosKey"];
                 if (string.IsNullOrEmpty(cosmosKey) || string.IsNullOrEmpty(cosmosEndpoint))
                 {
                     throw new InvalidOperationException("The configuration value for Cosmos:Key or Cosmos:Endpoint are null");
