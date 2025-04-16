@@ -7,7 +7,8 @@ variables:
   acrName: "distributedwordcompletionacr"
   containerAppEnv: "distributedwordcompletion-acr-env-wus"
   buildConfiguration: "Release"
-  imageTagSuffix: "$(Build.BuildId)"  # Will use the build ID as the unique suffix
+  timestamp: $[format('{0:yyyyMMddHHmmss}', pipeline.startTime)]
+  imageTagSuffix: $(timestamp)
   group: Secrets
 
 stages:
@@ -130,7 +131,7 @@ stages:
             # Define the apps to deploy with their target port (8080 in this case)
             declare -a apps=("prefixtree-service-a" "prefixtree-service-b" "word-ingestor")
             for app in "${apps[@]}"; do
-              imageTag="${acrName}.azurecr.io/${app}:$(Build.BuildId)"
+              imageTag="${acrName}.azurecr.io/${app}:$(imageTagSuffix)"
               echo "Deploying/Updating container app: $app with image: $imageTag"
               
               # Check if the container app exists
