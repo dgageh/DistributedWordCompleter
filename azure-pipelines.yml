@@ -8,7 +8,7 @@ variables:
   containerAppEnv: "distributedwordcompletion-acr-env-wus"
   buildConfiguration: "Release"
   timestamp: $[format('{0:yyyyMMddHHmmss}', pipeline.startTime)]
-  imageTagSuffix: $(timestamp)
+  imageTagSuffix: $(Build.Buildid)
   group: Secrets
 
 stages:
