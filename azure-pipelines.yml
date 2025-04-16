@@ -11,45 +11,9 @@ variables:
   imageTagSuffix: $(timestamp)
   group: Secrets
 
-stages:
-
-# Stage 1: Build Docker Images
-- stage: Build
-  displayName: "Build Docker Images"
-  jobs:
-  - job: BuildImages
-    displayName: "Build Images for All Services"
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-      - task: Docker@2
-        displayName: "Build IngestorService image"
-        inputs:
-          command: 'build'
-          dockerfile: 'IngestorService/Dockerfile'
-          buildContext: '.'
-          tags: '$(acrName).azurecr.io/word-ingestor:$(imageTagSuffix)'
-
-      - task: Docker@2
-        displayName: "Build PrefixTreeServiceA image"
-        inputs:
-          command: 'build'
-          dockerfile: 'PrefixTreeServiceA/Dockerfile'
-          buildContext: '.'
-          tags: '$(acrName).azurecr.io/prefixtree-service-a:$(imageTagSuffix)'
-
-      - task: Docker@2
-        displayName: "Build PrefixTreeServiceB image"
-        inputs:
-          command: 'build'
-          dockerfile: 'PrefixTreeServiceB/Dockerfile'
-          buildContext: '.'
-          tags: '$(acrName).azurecr.io/prefixtree-service-b:$(imageTagSuffix)'
-
-# Stage 2: Run Unit Tests
+# Stage 1: Run Unit Tests
 - stage: Test
   displayName: "Run Unit Tests"
-  dependsOn: Build
   jobs:
   - job: RunTests
     displayName: "Run Dotnet Tests"
@@ -63,49 +27,47 @@ stages:
           dotnet test WordIngestorServiceTests/WordIngestorServiceTests.csproj --configuration $(buildConfiguration)
         displayName: "Run WordIngestorServiceTests Tests"
 
-# Stage 3: Push Docker Images to ACR
-- stage: Push
-  displayName: "Push Docker Images to ACR"
+# Stage 2: Build and Push Docker Images
+- stage: BuildPush
+  displayName: "Build and Push Docker Images"
   dependsOn: Test
   jobs:
-  - job: PushImages
-    displayName: "Push Images"
+  - job: BuildAndPushImages
+    displayName: "Build and Push Images for All Services"
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-      # Log in to ACR using Azure CLI
-      - task: AzureCLI@2
-        displayName: "ACR Login"
-        inputs:
-          azureSubscription: 'Azure Subscription'
-          scriptType: 'bash'
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-            echo "Logging into ACR $(acrName)..."
-            az acr login --name $(acrName)
-      
       - task: Docker@2
-        displayName: "Push IngestorService Image"
+        displayName: "Build and Push IngestorService image"
         inputs:
-          command: 'push'
+          command: 'buildAndPush'
+          dockerfile: 'IngestorService/Dockerfile'
+          buildContext: '.'
           tags: '$(acrName).azurecr.io/word-ingestor:$(imageTagSuffix)'
+          containerRegistry: '$(acrName)'
 
       - task: Docker@2
-        displayName: "Push PrefixTreeServiceA Image"
+        displayName: "Build and Push PrefixTreeServiceA image"
         inputs:
-          command: 'push'
+          command: 'buildAndPush'
+          dockerfile: 'PrefixTreeServiceA/Dockerfile'
+          buildContext: '.'
           tags: '$(acrName).azurecr.io/prefixtree-service-a:$(imageTagSuffix)'
+          containerRegistry: '$(acrName)'
 
       - task: Docker@2
-        displayName: "Push PrefixTreeServiceB Image"
+        displayName: "Build and Push PrefixTreeServiceB image"
         inputs:
-          command: 'push'
+          command: 'buildAndPush'
+          dockerfile: 'PrefixTreeServiceB/Dockerfile'
+          buildContext: '.'
           tags: '$(acrName).azurecr.io/prefixtree-service-b:$(imageTagSuffix)'
+          containerRegistry: '$(acrName)'
 
-# Stage 4: Deploy/Update Azure Container Apps
+# Stage 3: Deploy/Update Azure Container Apps
 - stage: Deploy
   displayName: "Deploy to Azure Container Apps"
-  dependsOn: Push
+  dependsOn: BuildPush
   jobs:
   - job: DeployApps
     displayName: "Deploy Container Apps"
@@ -128,7 +90,7 @@ stages:
             subscriptionId=$(az account show --query id -o tsv)
             echo "Using subscription: $subscriptionId"
 
-            # Define the apps to deploy with their target port (8080 in this case)
+            # Define the apps to deploy (target port 8080 in this example)
             declare -a apps=("prefixtree-service-a" "prefixtree-service-b" "word-ingestor")
             for app in "${apps[@]}"; do
               imageTag="${acrName}.azurecr.io/${app}:$(imageTagSuffix)"
@@ -155,7 +117,7 @@ stages:
               fi
             done
 
-# Stage 5: Mirror Repository to GitHub
+# Stage 4: Mirror Repository to GitHub
 - stage: Mirror
   displayName: "Mirror Repository to GitHub"
   dependsOn: Deploy
@@ -165,18 +127,13 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-      # Check out the entire repository with credentials persisted so that git commands work
       - checkout: self
         persistCredentials: true
       - script: |
           echo "Setting up Git remotes for mirroring..."
-          # Remove existing remote if present
           git remote remove github || true
-          # Add GitHub remote with PAT authentication (the PAT is stored as a secure variable)
-          git remote add github https://$(GITHUB_PAT)@github.com/DGageH/DistributedWordCompleter.git
-          
+          git remote add github https://$(GITHUB_PAT)@github.com/DGageH/DistributedWordCompleter.git        
           echo "Mirroring repository to GitHub..."
-          # Push all refs (branches, tags, etc.) to GitHub
           git push --mirror github
         displayName: "Mirror repository to GitHub"
         env:
