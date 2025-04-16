@@ -43,7 +43,7 @@ stages:
         dockerfile: 'IngestorService/Dockerfile'
         buildContext: '.'
         tags: '$(acrName).azurecr.io/word-ingestor:$(imageTagSuffix)'
-        containerRegistry: '$(acrName)'
+        containerRegistry: 'MyACRServiceConnection'
     - task: Docker@2
       displayName: "Build and Push PrefixTreeServiceA image"
       inputs:
@@ -51,7 +51,7 @@ stages:
         dockerfile: 'PrefixTreeServiceA/Dockerfile'
         buildContext: '.'
         tags: '$(acrName).azurecr.io/prefixtree-service-a:$(imageTagSuffix)'
-        containerRegistry: '$(acrName)'
+        containerRegistry: 'MyACRServiceConnection'
     - task: Docker@2
       displayName: "Build and Push PrefixTreeServiceB image"
       inputs:
@@ -59,7 +59,7 @@ stages:
         dockerfile: 'PrefixTreeServiceB/Dockerfile'
         buildContext: '.'
         tags: '$(acrName).azurecr.io/prefixtree-service-b:$(imageTagSuffix)'
-        containerRegistry: '$(acrName)'
+        containerRegistry: 'MyACRServiceConnection'
 
 - stage: Deploy
   displayName: "Deploy to Azure Container Apps"
