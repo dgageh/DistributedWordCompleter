@@ -40,25 +40,28 @@ stages:
       displayName: "Build and Push IngestorService image"
       inputs:
         command: 'buildAndPush'
+        repository: '$(acrName).azurecr.io/word-ingestor'
         dockerfile: 'IngestorService/Dockerfile'
         buildContext: '.'
-        tags: '$(acrName).azurecr.io/word-ingestor:$(imageTagSuffix)'
+        tags: '$(imageTagSuffix)'
         containerRegistry: 'MyACRServiceConnection'
     - task: Docker@2
       displayName: "Build and Push PrefixTreeServiceA image"
       inputs:
         command: 'buildAndPush'
+        repository: '$(acrName).azurecr.io/prefixtree-service-a'
         dockerfile: 'PrefixTreeServiceA/Dockerfile'
         buildContext: '.'
-        tags: '$(acrName).azurecr.io/prefixtree-service-a:$(imageTagSuffix)'
+        tags: '$(imageTagSuffix)'
         containerRegistry: 'MyACRServiceConnection'
     - task: Docker@2
       displayName: "Build and Push PrefixTreeServiceB image"
       inputs:
         command: 'buildAndPush'
+        repository: '$(acrName).azurecr.io/prefixtree-service-b'
         dockerfile: 'PrefixTreeServiceB/Dockerfile'
         buildContext: '.'
-        tags: '$(acrName).azurecr.io/prefixtree-service-b:$(imageTagSuffix)'
+        tags: '$(imageTagSuffix)'
         containerRegistry: 'MyACRServiceConnection'
 
 - stage: Deploy
