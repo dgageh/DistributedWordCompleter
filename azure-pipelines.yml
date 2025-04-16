@@ -19,7 +19,7 @@ stages:
   - job: BuildImages
     displayName: "Build Images for All Services"
     pool:
-      name: 'Default'
+      vmImage: 'ubuntu-latest'
     steps:
       - task: Docker@2
         displayName: "Build IngestorService image"
@@ -45,40 +45,34 @@ stages:
           buildContext: '.'
           tags: '$(acrName).azurecr.io/prefixtree-service-b:$(imageTagSuffix)'
 
-
-
-# # Stage 2: Run Unit Tests
-# - stage: Test
-#   displayName: "Run Unit Tests"
-#   dependsOn: Build
-#   jobs:
-#   - job: RunTests
-#     displayName: "Run Dotnet Tests"
-#     pool:
-#       name: 'Default'
-#     steps:
-#     # - powershell: |
-#     #     Import-Module Microsoft.PowerShell.Security -ErrorAction Stop
-#     #     Write-Output "Module imported successfully." 
-#     #     displayName: "Import Security Module"    
-#         - script: |
-#             dotnet test ConcurrentTrieTestProject/ConcurrentTrieTestProject.csproj --configuration $(buildConfiguration)
-#               displayName: "Run ConcurrentTrieTestProject Tests"
-#         - script: |
-#               dotnet test WordIngestorServiceTests/WordIngestorServiceTests.csproj --configuration $(buildConfiguration)
-#           displayName: "Run WordIngestorServiceTests Tests"
+# Stage 2: Run Unit Tests
+- stage: Test
+  displayName: "Run Unit Tests"
+  dependsOn: Build
+  jobs:
+  - job: RunTests
+    displayName: "Run Dotnet Tests"
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - script: |
+          dotnet test ConcurrentTrieTestProject/ConcurrentTrieTestProject.csproj --configuration $(buildConfiguration)
+        displayName: "Run ConcurrentTrieTestProject Tests"
+      - script: |
+          dotnet test WordIngestorServiceTests/WordIngestorServiceTests.csproj --configuration $(buildConfiguration)
+        displayName: "Run WordIngestorServiceTests Tests"
 
 # Stage 3: Push Docker Images to ACR
 - stage: Push
   displayName: "Push Docker Images to ACR"
-  #dependsOn: Test
-  dependsOn: Build
+  dependsOn: Test
   jobs:
   - job: PushImages
     displayName: "Push Images"
     pool:
-      name: 'Default'
+      vmImage: 'ubuntu-latest'
     steps:
+      # Log in to ACR using Azure CLI
       - task: AzureCLI@2
         displayName: "ACR Login"
         inputs:
@@ -115,7 +109,7 @@ stages:
   - job: DeployApps
     displayName: "Deploy Container Apps"
     pool:
-      name: 'Default'
+      vmImage: 'ubuntu-latest'
     steps:
       - task: AzureCLI@2
         displayName: "Deploy Container Apps"
@@ -168,7 +162,7 @@ stages:
   - job: MirrorRepo
     displayName: "Mirror Code to GitHub"
     pool:
-      name: 'Default'
+      vmImage: 'ubuntu-latest'
     steps:
       # Check out the entire repository with credentials persisted so that git commands work
       - checkout: self
