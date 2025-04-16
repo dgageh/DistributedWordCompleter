@@ -117,24 +117,24 @@ stages:
             # fi
           done
 
-- stage: Mirror
-  displayName: "Mirror Repository to GitHub"
-  dependsOn: Deploy
-  jobs:
-  - job: MirrorRepo
-    displayName: "Mirror Code to GitHub"
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - checkout: self
-      persistCredentials: true
-    - script: |
-        echo "Setting up Git remotes for mirroring..."
-        echo https://$GITHUB_PAT@github.com/DGageH/DistributedWordCompleter.git
-        git remote remove github || true
-        git remote add github https://$GITHUB_PAT@github.com/DGageH/DistributedWordCompleter.git        
-        echo "Mirroring repository to GitHub..."
-        git push --mirror github
-      displayName: "Mirror repository to GitHub"
-      env:
-        GITHUB_PAT: $(GITHUB_PAT)
+# - stage: Mirror
+#   displayName: "Mirror Repository to GitHub"
+#   dependsOn: Deploy
+#   jobs:
+#   - job: MirrorRepo
+#     displayName: "Mirror Code to GitHub"
+#     pool:
+#       vmImage: 'ubuntu-latest'
+#     steps:
+#     - checkout: self
+#       persistCredentials: true
+#     - script: |
+#         echo "Setting up Git remotes for mirroring..."
+#         echo https://$GITHUB_PAT@github.com/DGageH/DistributedWordCompleter.git
+#         git remote remove github || true
+#         git remote add github https://$GITHUB_PAT@github.com/DGageH/DistributedWordCompleter.git        
+#         echo "Mirroring repository to GitHub..."
+#         git push --mirror github
+#       displayName: "Mirror repository to GitHub"
+#       env:
+#         GITHUB_PAT: $(GITHUB_PAT)
