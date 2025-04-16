@@ -40,7 +40,7 @@ stages:
       displayName: "Build and Push IngestorService image"
       inputs:
         command: 'buildAndPush'
-        repository: '$(acrName).azurecr.io/word-ingestor'
+        repository: 'word-ingestor'
         dockerfile: 'IngestorService/Dockerfile'
         buildContext: '.'
         tags: '$(imageTagSuffix)'
@@ -49,7 +49,7 @@ stages:
       displayName: "Build and Push PrefixTreeServiceA image"
       inputs:
         command: 'buildAndPush'
-        repository: '$(acrName).azurecr.io/prefixtree-service-a'
+        repository: 'prefixtree-service-a'
         dockerfile: 'PrefixTreeServiceA/Dockerfile'
         buildContext: '.'
         tags: '$(imageTagSuffix)'
@@ -58,7 +58,7 @@ stages:
       displayName: "Build and Push PrefixTreeServiceB image"
       inputs:
         command: 'buildAndPush'
-        repository: '$(acrName).azurecr.io/prefixtree-service-b'
+        repository: 'prefixtree-service-b'
         dockerfile: 'PrefixTreeServiceB/Dockerfile'
         buildContext: '.'
         tags: '$(imageTagSuffix)'
