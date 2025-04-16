@@ -10,6 +10,7 @@ variables:
   timestamp: $[format('{0:yyyyMMddHHmmss}', pipeline.startTime)]
   imageTagSuffix: $(Build.Buildid)
   group: Secrets
+  GITHUB_PAT: $(GITHUB_PAT)
 
 stages:
 - stage: Test
