@@ -8,10 +8,10 @@ variables:
   containerAppEnv: "distributedwordcompletion-acr-env-wus"
   buildConfiguration: "Release"
   timestamp: $[format('{0:yyyyMMddHHmmss}', pipeline.startTime)]
-  imageTagSuffix: $(timestamp)
+  imageTagSuffix: $(Build.Buildid)
   group: Secrets
 
-# Stage 1: Run Unit Tests
+stages:
 - stage: Test
   displayName: "Run Unit Tests"
   jobs:
@@ -20,14 +20,13 @@ variables:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-      - script: |
-          dotnet test ConcurrentTrieTestProject/ConcurrentTrieTestProject.csproj --configuration $(buildConfiguration)
-        displayName: "Run ConcurrentTrieTestProject Tests"
-      - script: |
-          dotnet test WordIngestorServiceTests/WordIngestorServiceTests.csproj --configuration $(buildConfiguration)
-        displayName: "Run WordIngestorServiceTests Tests"
+    - script: |
+        dotnet test ConcurrentTrieTestProject/ConcurrentTrieTestProject.csproj --configuration $(buildConfiguration)
+      displayName: "Run ConcurrentTrieTestProject Tests"
+    - script: |
+        dotnet test WordIngestorServiceTests/WordIngestorServiceTests.csproj --configuration $(buildConfiguration)
+      displayName: "Run WordIngestorServiceTests Tests"
 
-# Stage 2: Build and Push Docker Images
 - stage: BuildPush
   displayName: "Build and Push Docker Images"
   dependsOn: Test
@@ -37,34 +36,34 @@ variables:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-      - task: Docker@2
-        displayName: "Build and Push IngestorService image"
-        inputs:
-          command: 'buildAndPush'
-          dockerfile: 'IngestorService/Dockerfile'
-          buildContext: '.'
-          tags: '$(acrName).azurecr.io/word-ingestor:$(imageTagSuffix)'
-          containerRegistry: '$(acrName)'
+    - task: Docker@2
+      displayName: "Build and Push IngestorService image"
+      inputs:
+        command: 'buildAndPush'
+        repository: '$(acrName).azurecr.io/word-ingestor'
+        dockerfile: 'IngestorService/Dockerfile'
+        buildContext: '.'
+        tags: '$(imageTagSuffix)'
+        containerRegistry: 'MyACRServiceConnection'
+    - task: Docker@2
+      displayName: "Build and Push PrefixTreeServiceA image"
+      inputs:
+        command: 'buildAndPush'
+        repository: '$(acrName).azurecr.io/prefixtree-service-a'
+        dockerfile: 'PrefixTreeServiceA/Dockerfile'
+        buildContext: '.'
+        tags: '$(imageTagSuffix)'
+        containerRegistry: 'MyACRServiceConnection'
+    - task: Docker@2
+      displayName: "Build and Push PrefixTreeServiceB image"
+      inputs:
+        command: 'buildAndPush'
+        repository: '$(acrName).azurecr.io/prefixtree-service-b'
+        dockerfile: 'PrefixTreeServiceB/Dockerfile'
+        buildContext: '.'
+        tags: '$(imageTagSuffix)'
+        containerRegistry: 'MyACRServiceConnection'
 
-      - task: Docker@2
-        displayName: "Build and Push PrefixTreeServiceA image"
-        inputs:
-          command: 'buildAndPush'
-          dockerfile: 'PrefixTreeServiceA/Dockerfile'
-          buildContext: '.'
-          tags: '$(acrName).azurecr.io/prefixtree-service-a:$(imageTagSuffix)'
-          containerRegistry: '$(acrName)'
-
-      - task: Docker@2
-        displayName: "Build and Push PrefixTreeServiceB image"
-        inputs:
-          command: 'buildAndPush'
-          dockerfile: 'PrefixTreeServiceB/Dockerfile'
-          buildContext: '.'
-          tags: '$(acrName).azurecr.io/prefixtree-service-b:$(imageTagSuffix)'
-          containerRegistry: '$(acrName)'
-
-# Stage 3: Deploy/Update Azure Container Apps
 - stage: Deploy
   displayName: "Deploy to Azure Container Apps"
   dependsOn: BuildPush
@@ -74,50 +73,49 @@ variables:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-      - task: AzureCLI@2
-        displayName: "Deploy Container Apps"
-        inputs:
-          azureSubscription: 'Azure Subscription'
-          scriptType: 'bash'
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-            set -e
+    - task: AzureCLI@2
+      displayName: "Deploy Container Apps"
+      inputs:
+        azureSubscription: 'Azure Subscription'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          set -e
 
-            # Retrieve variables
-            resourceGroup="$(resourceGroup)"
-            acrName="$(acrName)"
-            containerAppEnv="$(containerAppEnv)"
-            subscriptionId=$(az account show --query id -o tsv)
-            echo "Using subscription: $subscriptionId"
+          # Retrieve variables
+          resourceGroup="$(resourceGroup)"
+          acrName="$(acrName)"
+          containerAppEnv="$(containerAppEnv)"
+          subscriptionId=$(az account show --query id -o tsv)
+          echo "Using subscription: $subscriptionId"
 
-            # Define the apps to deploy (target port 8080 in this example)
-            declare -a apps=("prefixtree-service-a" "prefixtree-service-b" "word-ingestor")
-            for app in "${apps[@]}"; do
-              imageTag="${acrName}.azurecr.io/${app}:$(imageTagSuffix)"
-              echo "Deploying/Updating container app: $app with image: $imageTag"
-              
-              # Check if the container app exists
-              if az containerapp show --name "$app" --resource-group "$resourceGroup" &> /dev/null; then
-                echo "Container app exists. Updating..."
-                az containerapp update --name "$app" --resource-group "$resourceGroup" --image "$imageTag"
-              else
-                echo "Container app does not exist. Creating..."
-                az containerapp create --name "$app" --resource-group "$resourceGroup" \
-                  --environment "$containerAppEnv" --image "$imageTag" --target-port 8080 \
-                  --ingress external --registry-server "${acrName}.azurecr.io" --system-assigned
-              fi
+          # Define the apps to deploy (target port 8080 in this example)
+          declare -a apps=("prefixtree-service-a" "prefixtree-service-b" "word-ingestor")
+          for app in "${apps[@]}"; do
+            imageTag="${acrName}.azurecr.io/${app}:$(imageTagSuffix)"
+            echo "Deploying/Updating container app: $app with image: $imageTag"
+            
+            # Check if the container app exists
+            if az containerapp show --name "$app" --resource-group "$resourceGroup" &> /dev/null; then
+              echo "Container app exists. Updating..."
+              az containerapp update --name "$app" --resource-group "$resourceGroup" --image "$imageTag"
+            else
+              echo "Container app does not exist. Creating..."
+              az containerapp create --name "$app" --resource-group "$resourceGroup" \
+                --environment "$containerAppEnv" --image "$imageTag" --target-port 8080 \
+                --ingress external --registry-server "${acrName}.azurecr.io" --system-assigned
+            fi
 
-              # Retrieve the container app's managed identity and assign the AcrPull role
-              principalId=$(az containerapp show --name "$app" --resource-group "$resourceGroup" --query "identity.principalId" -o tsv)
-              if [ -n "$principalId" ]; then
-                echo "Assigning AcrPull role to container app $app (PrincipalId: $principalId)..."
-                az role assignment create --assignee "$principalId" --role "AcrPull" --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroup/providers/Microsoft.ContainerRegistry/registries/$acrName"
-              else
-                echo "Warning: No principalId found for container app $app. Skipping role assignment."
-              fi
-            done
+            # Retrieve the container app's managed identity and assign the AcrPull role
+            principalId=$(az containerapp show --name "$app" --resource-group "$resourceGroup" --query "identity.principalId" -o tsv)
+            if [ -n "$principalId" ]; then
+              echo "Assigning AcrPull role to container app $app (PrincipalId: $principalId)..."
+              az role assignment create --assignee "$principalId" --role "AcrPull" --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroup/providers/Microsoft.ContainerRegistry/registries/$acrName"
+            else
+              echo "Warning: No principalId found for container app $app. Skipping role assignment."
+            fi
+          done
 
-# Stage 4: Mirror Repository to GitHub
 - stage: Mirror
   displayName: "Mirror Repository to GitHub"
   dependsOn: Deploy
@@ -127,14 +125,14 @@ variables:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-      - checkout: self
-        persistCredentials: true
-      - script: |
-          echo "Setting up Git remotes for mirroring..."
-          git remote remove github || true
-          git remote add github https://$(GITHUB_PAT)@github.com/DGageH/DistributedWordCompleter.git        
-          echo "Mirroring repository to GitHub..."
-          git push --mirror github
-        displayName: "Mirror repository to GitHub"
-        env:
-          GITHUB_PAT: $(GITHUB_PAT)
+    - checkout: self
+      persistCredentials: true
+    - script: |
+        echo "Setting up Git remotes for mirroring..."
+        git remote remove github || true
+        git remote add github https://$(GITHUB_PAT)@github.com/DGageH/DistributedWordCompleter.git        
+        echo "Mirroring repository to GitHub..."
+        git push --mirror github
+      displayName: "Mirror repository to GitHub"
+      env:
+        GITHUB_PAT: $(GITHUB_PAT)
