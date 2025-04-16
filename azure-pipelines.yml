@@ -45,6 +45,7 @@ stages:
         buildContext: '.'
         tags: '$(imageTagSuffix)'
         containerRegistry: 'MyACRServiceConnection'
+        arguments: '--no-cache'
     - task: Docker@2
       displayName: "Build and Push PrefixTreeServiceA image"
       inputs:
@@ -54,6 +55,7 @@ stages:
         buildContext: '.'
         tags: '$(imageTagSuffix)'
         containerRegistry: 'MyACRServiceConnection'
+        arguments: '--no-cache'
     - task: Docker@2
       displayName: "Build and Push PrefixTreeServiceB image"
       inputs:
@@ -63,6 +65,7 @@ stages:
         buildContext: '.'
         tags: '$(imageTagSuffix)'
         containerRegistry: 'MyACRServiceConnection'
+        arguments: '--no-cache'
 
 - stage: Deploy
   displayName: "Deploy to Azure Container Apps"
