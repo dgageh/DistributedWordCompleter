@@ -108,13 +108,13 @@ stages:
             fi
 
             # Retrieve the container app's managed identity and assign the AcrPull role
-            principalId=$(az containerapp show --name "$app" --resource-group "$resourceGroup" --query "identity.principalId" -o tsv)
-            if [ -n "$principalId" ]; then
-              echo "Assigning AcrPull role to container app $app (PrincipalId: $principalId)..."
-              az role assignment create --assignee "$principalId" --role "AcrPull" --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroup/providers/Microsoft.ContainerRegistry/registries/$acrName"
-            else
-              echo "Warning: No principalId found for container app $app. Skipping role assignment."
-            fi
+            # principalId=$(az containerapp show --name "$app" --resource-group "$resourceGroup" --query "identity.principalId" -o tsv)
+            # if [ -n "$principalId" ]; then
+            #   echo "Assigning AcrPull role to container app $app (PrincipalId: $principalId)..."
+            #   az role assignment create --assignee "$principalId" --role "AcrPull" --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroup/providers/Microsoft.ContainerRegistry/registries/$acrName"
+            # else
+            #   echo "Warning: No principalId found for container app $app. Skipping role assignment."
+            # fi
           done
 
 - stage: Mirror
