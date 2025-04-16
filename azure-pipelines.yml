@@ -131,7 +131,7 @@ stages:
     - script: |
         echo "Setting up Git remotes for mirroring..."
         git remote remove github || true
-        git remote add github https://{$GITHUB_PAT}@github.com/DGageH/DistributedWordCompleter.git        
+        git remote add github https://($GITHUB_PAT)@github.com/DGageH/DistributedWordCompleter.git        
         echo "Mirroring repository to GitHub..."
         git push --mirror github
       displayName: "Mirror repository to GitHub"
