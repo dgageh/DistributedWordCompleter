@@ -2,8 +2,15 @@ using TrieLibrary;
 
 namespace PrefixTreeServiceA
 {
+    /// <summary>
+    /// The main entry point for the PrefixTreeServiceA application.
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// The main method that starts the application.
+        /// </summary>
+        /// <param name="args">An array of command-line arguments.</param>
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -32,7 +39,6 @@ namespace PrefixTreeServiceA
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "PrefixTreeServiceA API V1");
                 c.RoutePrefix = string.Empty; // Set the Swagger UI to be the default page
             });
-
 
             // If you are not using HTTPS, you can comment out or remove the UseHttpsRedirection
             app.UseHttpsRedirection();

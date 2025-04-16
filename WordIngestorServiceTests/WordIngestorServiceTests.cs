@@ -5,19 +5,22 @@ namespace WordIngestorServiceTests
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using IngestorService.Services;
+    using Microsoft.Extensions.Logging;
 
     public class WordIngestorServiceTests
     {
         private readonly Mock<IPrefixTreeClient> _mockPrefixTreeClient;
         private readonly Mock<IWordsDbService> _mockWordsDbService;
         private readonly WordIngestorService _service;
+        private readonly Mock<ILogger<WordIngestorService>> _mockLogger;
 
         public WordIngestorServiceTests()
         {
             _mockPrefixTreeClient = new Mock<IPrefixTreeClient>();
             _mockWordsDbService = new Mock<IWordsDbService>();
+            _mockLogger = new Mock<ILogger<WordIngestorService>>();
 
-            _service = new WordIngestorService(_mockPrefixTreeClient.Object, _mockWordsDbService.Object);
+            _service = new WordIngestorService(_mockPrefixTreeClient.Object, _mockWordsDbService.Object, _mockLogger.Object);
         }
 
         [Fact]

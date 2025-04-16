@@ -6,34 +6,46 @@ using TrieLibrary;
 
 namespace IngestorService
 {
+    /// <summary>  
+    /// The main entry point for the IngestorService application.  
+    /// </summary>  
     public class Program
     {
+        /// <summary>  
+        /// The main method that starts the application.  
+        /// </summary>  
+        /// <param name="args">An array of command-line arguments.</param>  
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Read the designated region from an environment variable (or fallback to a default value)
+            // Configure logging
+            builder.Logging.ClearProviders(); // Optional: Clear default providers
+            builder.Logging.AddConsole(); // Add console logging
+            builder.Logging.AddDebug(); // Add debug logging
+            builder.Logging.AddEventSourceLogger(); // Add event source logging (optional)
+
+            // Read the designated region from an environment variable (or fallback to a default value)  
             var region = Environment.GetEnvironmentVariable("REGION") ?? "local";
             var prefixTreeServiceUrl = Environment.GetEnvironmentVariable("PREFIX-TREE-SERVICE") ?? "http://localhost:8000";
             var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS-ENDPOINT");
             var cosmosKey = Environment.GetEnvironmentVariable("COSMOS-KEY");
 
-
-            // Add services to the container
+            // Add services to the container  
             builder.Services.AddControllers();
 
-            // Configure Swagger/OpenAPI
+            // Configure Swagger/OpenAPI  
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
-                options.CustomSchemaIds(type => type.FullName); // Ensure unique schema IDs
+                options.CustomSchemaIds(type => type.FullName); // Ensure unique schema IDs  
                 options.DocumentFilter<ExcludePrefixTreeFilter>();
                 var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
             });
 
-            // Add application services
+            // Add application services  
             builder.Services.AddSingleton<IWordsDbService, WordsDbService>();
             builder.Services.AddSingleton<IPrefixTreeClient, PrefixTreeClient>();
             builder.Services.AddSingleton<WordIngestorService>();
@@ -46,7 +58,7 @@ namespace IngestorService
                 httpClient.BaseAddress = new Uri(prefixTreeServiceUrl);
             });
 
-            // Configure Cosmos DB service with dependency injection
+            // Configure Cosmos DB service with dependency injection  
             builder.Services.AddSingleton<IWordsDbService, WordsDbService>(provider =>
             {
                 if (string.IsNullOrEmpty(cosmosKey) || string.IsNullOrEmpty(cosmosEndpoint))
@@ -59,7 +71,7 @@ namespace IngestorService
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline
+            // Configure the HTTP request pipeline  
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

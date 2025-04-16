@@ -6,46 +6,56 @@ namespace IngestorService.Services
     {
         private readonly IPrefixTreeClient _prefixTreeClient;
         private readonly IWordsDbService _wordsDbService;
+        private readonly ILogger<WordIngestorService> _logger;
 
-        public WordIngestorService(IPrefixTreeClient prefixTreeClient, IWordsDbService wordsDbService)
+        public WordIngestorService(
+            IPrefixTreeClient prefixTreeClient,
+            IWordsDbService wordsDbService,
+            ILogger<WordIngestorService> logger)
         {
             _prefixTreeClient = prefixTreeClient ?? throw new ArgumentNullException(nameof(prefixTreeClient));
             _wordsDbService = wordsDbService ?? throw new ArgumentNullException(nameof(wordsDbService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task ProvisionDatabaseAsync()
         {
+            _logger.LogInformation("Provisioning database...");
             await _wordsDbService.ProvisionDatabaseAsync();
         }
 
         public async Task InitializeAsync(IEnumerable<string>? words = null)
         {
-            // If words are not provided, read from file
             if (words == null)
             {
                 string filePath = Path.Combine("Data", "words.txt");
 
                 if (!File.Exists(filePath))
+                {
+                    _logger.LogError("File {FilePath} not found in container.", filePath);
                     throw new FileNotFoundException($"File {filePath} not found in container.");
+                }
 
+                _logger.LogInformation("Reading words from file: {FilePath}", filePath);
                 words = await File.ReadAllLinesAsync(filePath);
             }
 
+            _logger.LogInformation("Wiping database...");
             await _wordsDbService.WipeDatabaseAsync();
             await BatchAddWordsAsync(words);
         }
 
         public async Task StartupAsync()
         {
-            var words = await _wordsDbService.GetAllWordsAsync(); 
-            Console.WriteLine($"Loading {words.Count()} words into PrefixTree...");
+            var words = await _wordsDbService.GetAllWordsAsync();
+            _logger.LogInformation("Loading {WordCount} words into PrefixTree...", words.Count());
             await BatchAddWordsAsync(words);
         }
 
         public async Task BatchAddWordsAsync(IEnumerable<string> words)
         {
             var uniqueWords = words.Select(w => w.ToLower().Trim()).Where(w => !string.IsNullOrEmpty(w)).Distinct();
-            Console.WriteLine($"Adding {uniqueWords.Count()} unique words...");
+            _logger.LogInformation("Adding {UniqueWordCount} unique words...", uniqueWords.Count());
 
             await Parallel.ForEachAsync(uniqueWords, async (word, _) =>
             {
@@ -56,27 +66,15 @@ namespace IngestorService.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error adding word '{word}': {ex.Message}");
+                    _logger.LogError(ex, "Error adding word '{Word}'", word);
                 }
             });
-            //foreach (var word in uniqueWords)
-            //{
-            //    try
-            //    {
-            //        //await _prefixTreeClient.InsertWordAsync(word);
-            //        await _wordsDbService.WriteWordAsync(word);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        Console.WriteLine($"Error adding word '{word}': {ex.Message}");
-            //    }
-            //}
         }
 
         public async Task BatchDeleteWordsAsync(IEnumerable<string> words)
         {
             var uniqueWords = words.Select(w => w.ToLower().Trim()).Where(w => !string.IsNullOrEmpty(w)).Distinct();
-            Console.WriteLine($"Deleting {uniqueWords.Count()} words...");
+            _logger.LogInformation("Deleting {UniqueWordCount} words...", uniqueWords.Count());
 
             await Parallel.ForEachAsync(uniqueWords, async (word, _) =>
             {
@@ -87,7 +85,7 @@ namespace IngestorService.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error deleting word '{word}': {ex.Message}");
+                    _logger.LogError(ex, "Error deleting word '{Word}'", word);
                 }
             });
         }
@@ -96,13 +94,13 @@ namespace IngestorService.Services
         {
             _wordsDbService.OnWordAdded += async (sender, word) =>
             {
-                Console.WriteLine($"Syncing new word '{word}'...");
+                _logger.LogInformation("Syncing new word '{Word}'...", word);
                 await _prefixTreeClient.InsertWordAsync(word);
             };
 
             _wordsDbService.OnWordDeleted += async (sender, word) =>
             {
-                Console.WriteLine($"Syncing deleted word '{word}'...");
+                _logger.LogInformation("Syncing deleted word '{Word}'...", word);
                 await _prefixTreeClient.RemoveWordAsync(word);
             };
         }
